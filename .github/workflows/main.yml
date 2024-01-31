@@ -17,7 +17,7 @@ jobs:
           cx_tenant: workshop
           cx_client_id: ${{ secrets.CX_CLIENT_ID }}
           cx_client_secret: ${{ secrets.CX_CLIENT_SECRET }}
-          additional_params: --report-format sonar --output-path . --output-name cx_result_sonar.json
+          additional_params: --report-format sonar --output-path .
 
       - name: Sonar CLI Action 
         uses: sonarsource/sonarqube-scan-action@master
@@ -27,4 +27,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: >
-            -Dsonar.externalIssuesReportPaths=cx_result_sonar.json -X
+            -Dsonar.externalIssuesReportPaths=./cx_result_sonar.json -X
