@@ -21,6 +21,7 @@ jobs:
       - shell: bash
         run: |
           ls -lah
+          pwd
       - name: Sonar CLI Action 
         uses: sonarsource/sonarqube-scan-action@master
         env:
