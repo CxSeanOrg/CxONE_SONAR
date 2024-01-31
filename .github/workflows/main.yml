@@ -19,9 +19,8 @@ jobs:
           cx_client_secret: ${{ secrets.CX_CLIENT_SECRET }}
           additional_params: --report-format sonar --output-path .
       - name: LIst root directory contents
-      run: |
-        ls -lah
-        pwd
+        run: ls -lah
+          
       - name: Sonar CLI Action 
         uses: sonarsource/sonarqube-scan-action@master
         env:
