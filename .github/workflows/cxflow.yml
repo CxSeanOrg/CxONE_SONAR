@@ -1,39 +1,34 @@
-// name: Checkmarx SAST and SCA Scan
-
-// on:
-//   pull_request:
-//     branches: [main] # Adjust as necessary for your workflow
-
-// jobs:
-//   checkmarx_scan:
-//     runs-on: ubuntu-latest
-//     steps:
-//       - name: Checkout code
-//         uses: actions/checkout@v2
-
-//       - name: Set up Java
-//         uses: actions/setup-java@v2
-//         with:
-//           java-version: '11' # Checkmarx CxFlow and SCA Resolver require Java
-
-//       - name: Download SCA Resolver
-//         run: |
-//           wget -O ScaResolver.zip https://download-url-for-sca-resolver/latest-version # Replace with actual URL
-//           unzip ScaResolver.zip -d ./scaResolver
-
-//       - name: Run Checkmarx SAST and SCA Scan
-//         env:
-//           CX_SERVER_URL: ${{ secrets.CX_SERVER_URL }}
-//           CX_API_KEY: ${{ secrets.CX_API_KEY }}
-//           # Add other necessary environment variables here
-//         run: |
-//           # Assuming you have a script or command to trigger SAST scan
-//           # cx-command-to-run-sast-scan
-
-//           # Now run SCA Resolver in offline mode
-//           java -jar ./scaResolver/cx-sca-resolver.jar \
-//             --project-name "${{ github.repository }}-${{ github.ref_name }}" \
-//             --s "${{ github.workspace }}" \
-//             --offline \
-//             --no-upload \
-//             --config ./scaResolver/configFileLocation # Assuming configFileLocation is the path to your SCA Resolver configuration file
+name: Build
+on:
+  push:
+    branches:
+      - main
+jobs:
+  cx-scan:
+    name: Run Checkmarx One cli
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Checkmarx AST CLI Action
+        uses: checkmarx/ast-github-action@main #Github Action version
+        with:
+          base_uri: https://ast.checkmarx.net/
+          cx_tenant: workshop
+          cx_client_id: ${{ secrets.CX_CLIENT_ID }}
+          cx_client_secret: ${{ secrets.CX_CLIENT_SECRET }}
+          additional_params: --sast-preset-name "Checkmarx Default" --report-format sonar --output-path .
+      - shell: bash
+        run: |
+          ls -lah
+          pwd
+          cat cx_result_sonar.json
+      - name: Sonar CLI Action 
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.externalIssuesReportPaths=./cx_result_sonar.json -X
